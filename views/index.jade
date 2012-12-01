@@ -13,5 +13,36 @@ block append bodyscripts
   script
     var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
 
+    var host               = window.document.location.host.replace(/:.*/, '');
+    var visionSocket       = new WebSocket('ws://' + host + ':8080');
+    
+    visionSocket.onmessage = function (event) { 
+      var data = JSON.parse(event.data);
+      var tags = data.tags;
+
+      if (tags && tags.length) {
+        document.querySelector('.main-container').classList.remove('no-tags');
+        tags.forEach(function (tag, i) {
+          var info = tag.scaled;
+          var id   = 'outline' + i;
+          var el   = document.getElementById(id);
+
+          //el.style.display = 'none';
+          el.style.width   = info.width + 'px';
+          el.style.height  = info.height + 'px';
+          el.style.left    = info.x + 'px';
+          el.style.top     = info.y + 'px';
+          //el.style.display = 'block';
+        });      
+      }
+      else {
+        document.querySelector('.main-container').classList.add('no-tags');
+      }
+    };
+
 block content
-  div#dronestream(width=640, height=360)
+  div#dronestream
+    div#outline0.tagoutline
+    div#outline1.tagoutline
+    div#outline2.tagoutline
+    div#outline3.tagoutline
